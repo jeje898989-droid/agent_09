@@ -25,15 +25,18 @@
 
 ```
 agent_09/
-├── CLAUDE.md      # 프로젝트 규칙 (자동으로 읽힘)
+├── CLAUDE.md          # 프로젝트 규칙 (자동으로 읽힘)
 ├── .gitignore
-├── research/      # 자료조사 노트 (.md, 영어)
-├── report/        # 최종 보고서 (.docx, 한국어)
-├── scripts/       # 보고서를 만드는 스크립트 (예: make_report.js)
-└── translate/     # 한국어 번역본, 원본 경로를 그대로 따름
+├── .claude/skills/    # 이 프로젝트 전용 스킬 (예: mk-ppt: python-pptx로 .pptx 발표자료 제작)
+├── research/          # 자료조사 노트 (.md, 영어)
+├── report/            # 최종 보고서 (.docx, 한국어)
+├── presentation/      # 발표자료 (.pptx, 한국어)
+├── scripts/           # 보고서와 발표자료를 만드는 스크립트 (예: make_report.js)
+└── translate/         # 한국어 번역본, 원본 경로를 그대로 따름
 ```
 
-- 조사 결과는 `research/`에, 보고서는 `report/`에 저장한다. 루트에는 `CLAUDE.md`와 `.gitignore` 말고는 아무것도 두지 않는다.
-- 모든 조사 노트와 보고서 이름에 버전을 붙인다. `.md` 파일은 `-vN`(예: `ai-development-research-v2.md`), `.docx` 파일은 `_vN`(예: `AI_발전_보고서_v2.docx`)을 쓴다.
+- 조사 결과는 `research/`에, 보고서는 `report/`에, 발표자료는 `presentation/`에 저장한다. 루트에는 `CLAUDE.md`와 `.gitignore` 말고는 아무것도 두지 않는다.
+- 모든 조사 노트, 보고서, 발표자료 이름에 버전을 붙인다. `.md` 파일은 `-vN`(예: `ai-development-research-v2.md`), `.docx`와 `.pptx` 파일은 `_vN`(예: `AI_발전_보고서_v2.docx`, `AI_발전_발표_v1.pptx`)을 쓴다.
 - 기존 버전을 덮어쓰지 않는다. 대신 다음 버전 번호로 새로 만든다.
-- 생성 스크립트는 임시 폴더가 아니라 `scripts/`에 보관해서 보고서를 다시 만들 수 있게 한다.
+- 생성 스크립트는 임시 폴더가 아니라 `scripts/`에 보관해서 보고서와 발표자료를 다시 만들 수 있게 한다.
+- 이 프로젝트 전용 스킬은 `.claude/skills/<name>/`에 두어 이 프로젝트 안에서만 작동하게 한다. 스킬의 `.md` 파일도 다른 파일과 똑같이 번역 규칙을 따른다(예: `translate/.claude/skills/mk-ppt/SKILL.ko.md`).

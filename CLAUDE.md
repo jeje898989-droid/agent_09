@@ -25,15 +25,18 @@
 
 ```
 agent_09/
-├── CLAUDE.md      # Project rules (loaded automatically)
+├── CLAUDE.md          # Project rules (loaded automatically)
 ├── .gitignore
-├── research/      # Research notes (.md, English)
-├── report/        # Final reports (.docx, Korean)
-├── scripts/       # Scripts that generate reports (e.g. make_report.js)
-└── translate/     # Korean translations, mirroring the original paths
+├── .claude/skills/    # Project-only skills (e.g. mk-ppt: build .pptx decks with python-pptx)
+├── research/          # Research notes (.md, English)
+├── report/            # Final reports (.docx, Korean)
+├── presentation/      # Slide decks (.pptx, Korean)
+├── scripts/           # Scripts that generate reports and decks (e.g. make_report.js)
+└── translate/         # Korean translations, mirroring the original paths
 ```
 
-- Save research results in `research/` and reports in `report/`. Keep nothing but `CLAUDE.md` and `.gitignore` in the root.
-- Put a version suffix on every research note and report: `-vN` for `.md` files (e.g. `ai-development-research-v2.md`) and `_vN` for `.docx` files (e.g. `AI_발전_보고서_v2.docx`).
+- Save research results in `research/`, reports in `report/`, and slide decks in `presentation/`. Keep nothing but `CLAUDE.md` and `.gitignore` in the root.
+- Put a version suffix on every research note, report and deck: `-vN` for `.md` files (e.g. `ai-development-research-v2.md`) and `_vN` for `.docx` and `.pptx` files (e.g. `AI_발전_보고서_v2.docx`, `AI_발전_발표_v1.pptx`).
 - Never overwrite an existing version. Create the next version number instead.
-- Keep generation scripts in `scripts/`, not in temporary folders, so reports can be rebuilt.
+- Keep generation scripts in `scripts/`, not in temporary folders, so reports and decks can be rebuilt.
+- Keep project-only skills in `.claude/skills/<name>/` so they work only inside this project. Their `.md` files follow the translation rules like any other (e.g. `translate/.claude/skills/mk-ppt/SKILL.ko.md`).
