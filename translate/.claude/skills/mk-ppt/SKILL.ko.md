@@ -8,18 +8,32 @@ description: 이 프로젝트에서 python-pptx로 PowerPoint 발표자료(.pptx
 이 스킬은 Python 스크립트를 통해 내용을 `.pptx` 파일로 만든다. 그래서 프로젝트의 보고서와 같은
 방식으로 발표자료를 다시 만들고 버전을 관리할 수 있다.
 
+## 규칙 먼저
+
+발표자료를 계획하거나 만들거나 고치기 전에 `.claude/rules/`에 있는 프로젝트 PPT 규칙을 먼저 적용한다.
+
+- PPT 규칙 중 **가장 높은 버전**을 쓴다(현재 `.claude/rules/ppt-rule-v1/ppt-rule-v1.md`).
+  자동으로 읽히지만, 컨텍스트에 없으면 다음 단계로 가기 전에 파일을 읽는다.
+- 규칙은 슬라이드 수, 디자인 파일 요구 사항, 마지막 점검 항목을 정한다. 이 스킬의 어떤 내용보다
+  먼저 규칙을 따른다.
+- **지시가 서로 부딪칠 때 우선순위:** 사용자 요청 > PPT 규칙 > 사용자의 디자인 파일 > 이 스킬의
+  기본값(테마, 레이아웃, 아래 팁).
+
 ## 프로젝트 규칙 (CLAUDE.md 기준)
 
 - **결과물:** 발표자료는 `presentation/`에 `<한글_이름>_vN.pptx` 형식으로 저장한다. 예: `AI_발전_발표_v1.pptx`.
 - **덮어쓰지 않기:** `next_version_path()`를 쓴다. `save()`는 덮어쓰기를 거부한다.
 - **생성 스크립트:** 발표자료마다 `scripts/`에 스크립트를 하나 둔다. 예: `scripts/make_ppt_ai.py`.
   나중에 다시 만들 수 있도록 임시 폴더에 두지 않는다.
-- **언어:** 사용자가 따로 요청하지 않으면 슬라이드 글은 한국어로 쓴다. 글꼴은 맑은 고딕.
+- **언어:** 사용자가 따로 요청하지 않으면 슬라이드 글은 한국어로 쓴다. 글꼴은 Noto Sans KR
+  (키트의 `FONT`). 이 글꼴이 설치되지 않은 PC에서는 대체 글꼴로 표시된다.
 - **출처:** 프로젝트 자료로 만들 때는 `research/*.md`나 보고서 스크립트(`scripts/make_report.js`)에서
   내용을 읽고, 표지 슬라이드에 출처 노트를 적는다.
 
 ## 작업 흐름
 
+0. **규칙 확인.** PPT 규칙에 따라 슬라이드 수(기본 8장)를 확인하고, 사용자의 디자인 파일을 받고
+   (없으면 요청한다), 마지막에 실행할 점검 항목을 정리한다.
 1. **목차 계획.** 슬라이드 목록부터 정한다. 슬라이드 하나에 메시지 하나, 제목은 한 줄 이하,
    글머리표는 한 줄 이하로 3~6개. 긴 설명은 슬라이드가 아니라 발표자 노트에 넣는다. 메시지마다
    슬라이드 종류를 고른다. 숫자 → 차트, 비교 → 표나 2단, 순서 → 글머리표.
@@ -30,7 +44,8 @@ description: 이 프로젝트에서 python-pptx로 PowerPoint 발표자료(.pptx
    슬라이드마다 제목과 내용이 있는지, 차트 계열, `!! OFF-SLIDE` 표시가 붙은 도형이 없는지 본다.
    대략적인 넘침 기준: 20pt에서 16:9 본문 영역 한 줄에 한글 약 45자가 들어가고, 글머리표가
    7줄을 넘으면 넘친다.
-5. **보고.** 결과 파일 경로, 슬라이드 목록(슬라이드당 한 줄), 스크립트 경로를 알린다.
+5. **보고.** 결과 파일 경로, 슬라이드 목록(슬라이드당 한 줄), 스크립트 경로, 따른 디자인 파일을
+   알린다.
 
 ## 도우미 키트: `.claude/skills/mk-ppt/scripts/pptx_kit.py`
 
@@ -39,6 +54,7 @@ import sys
 sys.path.insert(0, ".claude/skills/mk-ppt/scripts")
 from pptx_kit import *
 
+use_theme("pink")                                  # 선택: "blue"(기본) 또는 "pink"; new_deck()보다 먼저 호출
 prs = new_deck()                                   # 16:9; 템플릿을 쓰려면 new_deck(template="x.pptx")
 add_title_slide(prs, "AI 발전 동향", "2024–2026 핵심 정리 · 출처: research/ai-development-research-v2.md")
 add_section_slide(prs, "Ⅰ. 기술 발전")
@@ -55,6 +71,7 @@ save(prs, next_version_path("presentation", "AI_발전_발표"))
 
 | 함수 | 용도 |
 |---|---|
+| `use_theme(name, background=True)` | 색상을 `"blue"` 또는 `"pink"`로 전환; `new_deck()`보다 먼저 호출 |
 | `new_deck(widescreen=True, template=None)` | 새 발표자료(16:9) 또는 템플릿 기반 발표자료 |
 | `next_version_path(folder, base)` / `save(prs, path)` | 버전 붙은 경로; 덮어쓰지 않고 저장 |
 | `add_title_slide`, `add_section_slide` | 표지와 구역 구분 슬라이드 |
@@ -71,6 +88,13 @@ save(prs, next_version_path("presentation", "AI_발전_발표"))
 모든 생성 함수는 슬라이드(해당하면 표, 차트, 그림도)를 돌려주므로, 이어서 python-pptx로 직접
 꾸밀 수 있다. 색상은 `THEME`(primary, accent, text, muted, light, white)에 있으니 다른 느낌을
 원하면 거기서 바꾼다.
+
+**테마.** `THEMES`에 이름 붙은 팔레트가 있고 `use_theme(name)`으로 하나를 적용한다. `"blue"`는
+기본 남색/파랑 스타일이다. `"pink"`는 제목과 표 머리글에 진한 분홍(`#C2185B`), 강조색에 분홍
+(`#EC407A`), 슬라이드 배경에 연분홍(`#FFF5F8`, `new_deck()`이 슬라이드 마스터에 지정)을 쓰고,
+차트에는 계열마다(원형/도넛형은 조각마다) 분홍 계열 색을 입힌다. 흰 배경을 유지하려면
+`background=False`를 넘긴다. 테마를 추가하려면 같은 키로 `THEMES`에 항목을 넣는다. 선택 키인
+`background`와 `series`를 넣으면 슬라이드 배경과 차트 색이 적용된다.
 
 ## 기존 발표자료 수정
 

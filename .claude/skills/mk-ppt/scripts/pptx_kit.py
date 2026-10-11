@@ -26,15 +26,43 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8")
 
-FONT = "맑은 고딕"
-THEME = {
-    "primary": RGBColor(0x1F, 0x38, 0x64),
-    "accent": RGBColor(0x2E, 0x75, 0xB6),
-    "text": RGBColor(0x26, 0x26, 0x26),
-    "muted": RGBColor(0x7F, 0x7F, 0x7F),
-    "light": RGBColor(0xF2, 0xF2, 0xF2),
-    "white": RGBColor(0xFF, 0xFF, 0xFF),
+FONT = "Noto Sans KR"
+
+THEMES = {
+    "blue": {
+        "primary": RGBColor(0x1F, 0x38, 0x64),
+        "accent": RGBColor(0x2E, 0x75, 0xB6),
+        "text": RGBColor(0x26, 0x26, 0x26),
+        "muted": RGBColor(0x7F, 0x7F, 0x7F),
+        "light": RGBColor(0xF2, 0xF2, 0xF2),
+        "white": RGBColor(0xFF, 0xFF, 0xFF),
+    },
+    "pink": {
+        "primary": RGBColor(0xC2, 0x18, 0x5B),
+        "accent": RGBColor(0xEC, 0x40, 0x7A),
+        "text": RGBColor(0x3A, 0x2A, 0x30),
+        "muted": RGBColor(0x8E, 0x6F, 0x7A),
+        "light": RGBColor(0xFC, 0xE4, 0xEC),
+        "white": RGBColor(0xFF, 0xFF, 0xFF),
+        "background": RGBColor(0xFF, 0xF5, 0xF8),
+        # Chart series colors, darkest first
+        "series": [RGBColor(0xC2, 0x18, 0x5B), RGBColor(0xF0, 0x62, 0x92),
+                   RGBColor(0xF8, 0xBB, 0xD0), RGBColor(0x88, 0x0E, 0x4F),
+                   RGBColor(0xAD, 0x14, 0x57)],
+    },
 }
+# Active theme; use_theme() updates it in place so `from pptx_kit import *` callers see the change
+THEME = dict(THEMES["blue"])
+
+
+def use_theme(name, background=True):
+    """Switch every builder to a named theme ("blue" or "pink"). Call before new_deck().
+    background=False keeps white slides even if the theme defines a background color."""
+    THEME.clear()
+    THEME.update(THEMES[name])
+    if not background:
+        THEME.pop("background", None)
+    return THEME
 
 # Layout indexes of the default python-pptx template
 LAYOUT_TITLE, LAYOUT_TITLE_CONTENT, LAYOUT_SECTION, LAYOUT_TITLE_ONLY, LAYOUT_BLANK = 0, 1, 2, 5, 6
@@ -64,6 +92,9 @@ def new_deck(widescreen=True, template=None):
     prs = Presentation(template) if template else Presentation()
     if widescreen and not template:
         prs.slide_width, prs.slide_height = Inches(13.333), Inches(7.5)
+    if "background" in THEME and not template:
+        # Set on the master so every slide, including ones added later, inherits it
+        set_background(prs.slide_master, THEME["background"])
     return prs
 
 
@@ -238,7 +269,28 @@ def add_chart_slide(prs, title, categories, series, kind="column", number_format
     if number_format and kind not in ("pie", "doughnut", "scatter", "radar"):
         chart.value_axis.tick_labels.number_format = number_format
         chart.value_axis.tick_labels.number_format_is_linked = False
+    if "series" in THEME:
+        _color_chart(chart, kind, THEME["series"])
     return s, chart
+
+
+def _color_chart(chart, kind, colors):
+    """Apply theme colors: per point for pie/doughnut, per series otherwise."""
+    plot = chart.plots[0]
+    if kind in ("pie", "doughnut"):
+        targets = [plot.series[0].points[i] for i in range(len(plot.categories))]
+    else:
+        targets = list(plot.series)
+    for i, t in enumerate(targets):
+        rgb = colors[i % len(colors)]
+        if kind in ("line", "scatter", "radar"):
+            t.format.line.color.rgb = rgb
+            if kind != "radar":
+                t.marker.format.fill.solid()
+                t.marker.format.fill.fore_color.rgb = rgb
+        else:
+            t.format.fill.solid()
+            t.format.fill.fore_color.rgb = rgb
 
 
 def add_image_slide(prs, title, image_path, caption=None):

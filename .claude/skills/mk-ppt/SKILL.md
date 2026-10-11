@@ -8,18 +8,32 @@ description: Build or edit PowerPoint decks (.pptx) in this project with python-
 This skill turns content into a `.pptx` file through a Python script, so the deck can be rebuilt
 and versioned the same way as the project's reports.
 
+## Rules first
+
+Before you plan, build or edit any deck, apply the project's PPT rules in `.claude/rules/`.
+
+- Use the **highest version** of the PPT rule (currently `.claude/rules/ppt-rule-v1/ppt-rule-v1.md`).
+  It is loaded automatically; if it is not in your context, read the file before going on.
+- The rule sets the slide count, the design-file requirement and the final checks. Follow it
+  before anything in this skill.
+- **Priority when instructions conflict:** the user's request > the PPT rule > the user's design
+  file > this skill's defaults (theme, layout, tips below).
+
 ## Project conventions (from CLAUDE.md)
 
 - **Output:** save decks in `presentation/` as `<Korean_name>_vN.pptx`, e.g. `AI_발전_발표_v1.pptx`.
 - **Never overwrite** a version. Use `next_version_path()`; `save()` refuses to overwrite.
 - **Generation script:** each deck gets a script in `scripts/`, e.g. `scripts/make_ppt_ai.py`,
   so it can be rebuilt later. Don't leave it in a temp folder.
-- **Language:** slide text is Korean unless the user asks otherwise. Font: 맑은 고딕.
+- **Language:** slide text is Korean unless the user asks otherwise. Font: Noto Sans KR
+  (`FONT` in the kit). Machines without it installed show a substitute font.
 - **Sources:** when building from project material, read `research/*.md` or the report script
   (`scripts/make_report.js`) for content and cite the source note on the title slide.
 
 ## Workflow
 
+0. **Check the rules.** From the PPT rule, confirm the slide count (8 by default), get the user's
+   design file (ask for one if none is given) and note the checks to run at the end.
 1. **Plan the outline.** Decide the slide list first: one message per slide, a title of ≤ 1 line,
    3–6 bullets of ≤ 1 line each. Dense prose belongs in speaker notes, not on the slide. Pick a
    slide type per message: numbers → chart, comparisons → table or two-column, a sequence → bullets.
@@ -30,7 +44,8 @@ and versioned the same way as the project's reports.
    slide count, that each slide has its title and content, the chart series, and that no shape is
    flagged `!! OFF-SLIDE`. Rough overflow check: at 20pt, about 45 Korean characters fit on one line
    of a 16:9 content area; more than 7 lines of bullets will overflow.
-5. **Report** the output path, the slide list (one line per slide), and the script path.
+5. **Report** the output path, the slide list (one line per slide), the script path, and the
+   design file you followed.
 
 ## Helper kit: `.claude/skills/mk-ppt/scripts/pptx_kit.py`
 
@@ -39,6 +54,7 @@ import sys
 sys.path.insert(0, ".claude/skills/mk-ppt/scripts")
 from pptx_kit import *
 
+use_theme("pink")                                  # optional: "blue" (default) or "pink"; call before new_deck()
 prs = new_deck()                                   # 16:9; new_deck(template="x.pptx") for a template
 add_title_slide(prs, "AI 발전 동향", "2024–2026 핵심 정리 · 출처: research/ai-development-research-v2.md")
 add_section_slide(prs, "Ⅰ. 기술 발전")
@@ -55,6 +71,7 @@ save(prs, next_version_path("presentation", "AI_발전_발표"))
 
 | Function | Purpose |
 |---|---|
+| `use_theme(name, background=True)` | Switch colors to `"blue"` or `"pink"`; call before `new_deck()` |
 | `new_deck(widescreen=True, template=None)` | New deck (16:9) or one based on a template |
 | `next_version_path(folder, base)` / `save(prs, path)` | Versioned path; save without overwriting |
 | `add_title_slide`, `add_section_slide` | Cover and section divider slides |
@@ -71,6 +88,13 @@ save(prs, next_version_path("presentation", "AI_발전_발표"))
 All builders return the slide (and the table, chart or picture where relevant), so you can keep
 styling it with raw python-pptx. Colors are in `THEME` (primary, accent, text, muted, light, white);
 change them there for a different look.
+
+**Themes.** `THEMES` holds the named palettes and `use_theme(name)` makes one active. `"blue"` is
+the default navy/blue look. `"pink"` uses deep pink (`#C2185B`) titles and table headers, a pink
+accent (`#EC407A`), a pale pink slide background (`#FFF5F8`, set on the slide master by
+`new_deck()`), and pink chart colors applied per series (per slice for pie/doughnut). Pass
+`background=False` to keep white slides. To add a theme, add an entry to `THEMES` with the same
+keys; the optional `background` and `series` keys turn on the slide background and chart colors.
 
 ## Editing an existing deck
 

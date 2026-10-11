@@ -28,15 +28,19 @@ agent_09/
 ├── CLAUDE.md          # Project rules (loaded automatically)
 ├── .gitignore
 ├── .claude/skills/    # Project-only skills (e.g. mk-ppt: build .pptx decks with python-pptx)
+├── .claude/rules/     # Project-only rules, loaded automatically (e.g. ppt-rule-v1: deck rules)
 ├── research/          # Research notes (.md, English)
 ├── report/            # Final reports (.docx, Korean)
 ├── presentation/      # Slide decks (.pptx, Korean)
 ├── scripts/           # Scripts that generate reports and decks (e.g. make_report.js)
+├── references/        # Reference material (.md, English), e.g. references/ppt/slide-design-system.md
 └── translate/         # Korean translations, mirroring the original paths
 ```
 
 - Save research results in `research/`, reports in `report/`, and slide decks in `presentation/`. Keep nothing but `CLAUDE.md` and `.gitignore` in the root.
 - Put a version suffix on every research note, report and deck: `-vN` for `.md` files (e.g. `ai-development-research-v2.md`) and `_vN` for `.docx` and `.pptx` files (e.g. `AI_발전_보고서_v2.docx`, `AI_발전_발표_v1.pptx`).
 - Never overwrite an existing version. Create the next version number instead.
+- Keep reference material, such as design files for decks, in `references/<topic>/` (e.g. `references/ppt/slide-design-system.md`). Reference files do not need a version suffix.
 - Keep generation scripts in `scripts/`, not in temporary folders, so reports and decks can be rebuilt.
 - Keep project-only skills in `.claude/skills/<name>/` so they work only inside this project. Their `.md` files follow the translation rules like any other (e.g. `translate/.claude/skills/mk-ppt/SKILL.ko.md`).
+- Keep project-only rules in `.claude/rules/<name>/<name>.md` with a version suffix (e.g. `.claude/rules/ppt-rule-v1/ppt-rule-v1.md`). Claude Code loads them automatically like `CLAUDE.md`. A rule takes precedence over a skill on the same topic (e.g. apply `ppt-rule-v1` before the `mk-ppt` skill's defaults). Their `.md` files follow the translation rules too (e.g. `translate/.claude/rules/ppt-rule-v1/ppt-rule-v1.ko.md`).
