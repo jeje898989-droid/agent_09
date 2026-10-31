@@ -29,5 +29,6 @@ Use them together with the `mk-ppt` skill.
   table and chart so that none of them covers another, unless the overlap is deliberate (for
   example, text on a background shape) and the text stays readable.
 - **Check after building.** Run `python .claude/skills/mk-ppt/scripts/pptx_kit.py inspect <deck>`
-  and confirm that no shape is flagged `!! OFF-SLIDE` and that no text runs past its box. Fix
+  and confirm that no shape is flagged `!! OFF-SLIDE`. `inspect` does not measure text or the safe
+  margin, so check separately that no text runs past its box and that shapes keep the margin. Fix
   every problem and rebuild before you report the deck as done.

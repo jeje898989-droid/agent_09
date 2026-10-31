@@ -44,4 +44,4 @@ project.
 
 - Close the browser with `browser_close` when the task is done, unless the user wants it left open.
 - Report what you did, and save any screenshots or files you need to keep in the right project
-  folder (for example `blog/images/`), not in a temporary folder.
+  folder (for example `output/blog/images/`), not in a temporary folder.

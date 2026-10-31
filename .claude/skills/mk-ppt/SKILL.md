@@ -27,16 +27,15 @@ Before you plan, build or edit any deck, apply the project's PPT rules in `.clau
   so it can be rebuilt later. Don't leave it in a temp folder.
 - **Language:** slide text is Korean unless the user asks otherwise. Font: Noto Sans KR
   (`FONT` in the kit). Machines without it installed show a substitute font.
-- **Sources:** when building from project material, read `research/*.md` or the report script
+- **Sources:** when building from project material, read `research/**/*.md` or the report script
   (`scripts/make_report.js`) for content and cite the source note on the title slide.
 
 ## Workflow
 
 0. **Check the rules.** From the PPT rule, confirm the slide count (8 by default), get the user's
    design file (ask for one if none is given) and note the checks to run at the end.
-1. **Plan the outline.** Decide the slide list first: one message per slide, a title of ≤ 1 line,
-   3–6 bullets of ≤ 1 line each. Dense prose belongs in speaker notes, not on the slide. Pick a
-   slide type per message: numbers → chart, comparisons → table or two-column, a sequence → bullets.
+1. **Outline.** One message per slide, a title of ≤ 1 line, 3–6 bullets of ≤ 1 line each. Dense
+   prose belongs in speaker notes, not on the slide.
 2. **Write the script** in `scripts/` using the helper kit (below). Reach for raw python-pptx
    (see the cookbook) only for things the kit doesn't wrap.
 3. **Run it** with `python scripts/<script>.py`.
